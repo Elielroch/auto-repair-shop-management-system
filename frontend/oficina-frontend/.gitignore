@@ -1,0 +1,6 @@
+# Dependências do Node.js
+node_modules
+
+# Arquivos de build de produção
+dist
+.DS_Store
