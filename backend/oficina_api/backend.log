@@ -1,0 +1,56 @@
+nohup: ignoring input
+ * Serving Flask app 'main'
+ * Debug mode: on
+[31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5000
+ * Running on http://169.254.0.21:5000
+[33mPress CTRL+C to quit[0m
+ * Restarting with stat
+ * Debugger is active!
+ * Debugger PIN: 907-517-443
+127.0.0.1 - - [13/Sep/2025 13:27:44] "GET /api/clientes HTTP/1.1" 200 -
+127.0.0.1 - - [13/Sep/2025 13:28:09] "GET /api/relatorios/dashboard HTTP/1.1" 200 -
+127.0.0.1 - - [13/Sep/2025 13:28:09] "GET /api/relatorios/dashboard HTTP/1.1" 200 -
+127.0.0.1 - - [13/Sep/2025 13:28:17] "GET /api/clientes HTTP/1.1" 200 -
+127.0.0.1 - - [13/Sep/2025 13:28:17] "GET /api/clientes HTTP/1.1" 200 -
+127.0.0.1 - - [13/Sep/2025 13:29:02] "OPTIONS /api/clientes HTTP/1.1" 200 -
+127.0.0.1 - - [13/Sep/2025 13:29:02] "[35m[1mPOST /api/clientes HTTP/1.1[0m" 201 -
+127.0.0.1 - - [13/Sep/2025 13:29:02] "GET /api/clientes HTTP/1.1" 200 -
+127.0.0.1 - - [13/Sep/2025 13:29:15] "GET /api/veiculos HTTP/1.1" 200 -
+127.0.0.1 - - [13/Sep/2025 13:29:15] "GET /api/clientes HTTP/1.1" 200 -
+127.0.0.1 - - [13/Sep/2025 13:29:15] "GET /api/veiculos HTTP/1.1" 200 -
+127.0.0.1 - - [13/Sep/2025 13:29:15] "GET /api/clientes HTTP/1.1" 200 -
+127.0.0.1 - - [13/Sep/2025 13:29:24] "GET /api/pecas HTTP/1.1" 200 -
+127.0.0.1 - - [13/Sep/2025 13:29:24] "GET /api/pecas HTTP/1.1" 200 -
+127.0.0.1 - - [13/Sep/2025 13:29:31] "GET /api/relatorios/faturamento_mensal?ano=2025&mes=9 HTTP/1.1" 200 -
+127.0.0.1 - - [13/Sep/2025 13:29:31] "GET /api/relatorios/pecas_mais_usadas?dias=30 HTTP/1.1" 200 -
+127.0.0.1 - - [13/Sep/2025 13:29:31] "GET /api/relatorios/servicos_mais_realizados?dias=30 HTTP/1.1" 200 -
+127.0.0.1 - - [13/Sep/2025 13:29:32] "GET /api/relatorios/faturamento_mensal?ano=2025&mes=9 HTTP/1.1" 200 -
+127.0.0.1 - - [13/Sep/2025 13:29:32] "GET /api/relatorios/pecas_mais_usadas?dias=30 HTTP/1.1" 200 -
+127.0.0.1 - - [13/Sep/2025 13:29:32] "GET /api/relatorios/servicos_mais_realizados?dias=30 HTTP/1.1" 200 -
+10.194.138.1 - - [13/Sep/2025 23:59:05] "GET / HTTP/1.1" 200 -
+10.194.138.1 - - [14/Sep/2025 00:00:00] "HEAD / HTTP/1.1" 200 -
+10.194.138.1 - - [14/Sep/2025 00:00:00] "GET / HTTP/1.1" 200 -
+10.194.138.1 - - [14/Sep/2025 00:03:04] "GET / HTTP/1.1" 200 -
+10.194.138.1 - - [14/Sep/2025 00:03:04] "GET /assets/index-DLEXCn-W.css HTTP/1.1" 200 -
+10.194.138.1 - - [14/Sep/2025 00:03:04] "GET /assets/index-CWs-ONnw.js HTTP/1.1" 200 -
+10.194.138.1 - - [14/Sep/2025 00:03:05] "GET /favicon.ico HTTP/1.1" 200 -
+10.194.138.1 - - [14/Sep/2025 00:03:45] "[36mGET / HTTP/1.1[0m" 304 -
+10.194.138.1 - - [14/Sep/2025 00:03:46] "[36mGET /assets/index-DLEXCn-W.css HTTP/1.1[0m" 304 -
+10.194.138.1 - - [14/Sep/2025 00:03:46] "[36mGET /assets/index-CWs-ONnw.js HTTP/1.1[0m" 304 -
+10.194.138.1 - - [14/Sep/2025 00:07:22] "[36mGET / HTTP/1.1[0m" 304 -
+10.194.138.1 - - [14/Sep/2025 00:07:22] "[36mGET /assets/index-DLEXCn-W.css HTTP/1.1[0m" 304 -
+10.194.138.1 - - [14/Sep/2025 00:07:22] "[36mGET /assets/index-CWs-ONnw.js HTTP/1.1[0m" 304 -
+10.170.148.1 - - [14/Sep/2025 18:31:07] "[36mGET / HTTP/1.1[0m" 304 -
+10.170.148.1 - - [14/Sep/2025 18:31:08] "[36mGET /assets/index-DLEXCn-W.css HTTP/1.1[0m" 304 -
+10.170.148.1 - - [14/Sep/2025 18:31:08] "[36mGET /assets/index-CWs-ONnw.js HTTP/1.1[0m" 304 -
+10.170.148.1 - - [14/Sep/2025 18:31:40] "GET /veiculos HTTP/1.1" 200 -
+10.170.148.1 - - [14/Sep/2025 18:31:40] "[36mGET /assets/index-CWs-ONnw.js HTTP/1.1[0m" 304 -
+10.170.148.1 - - [14/Sep/2025 18:31:40] "[36mGET /assets/index-DLEXCn-W.css HTTP/1.1[0m" 304 -
+10.170.148.1 - - [14/Sep/2025 18:33:04] "GET /ordens-servico HTTP/1.1" 200 -
+10.170.148.1 - - [14/Sep/2025 18:33:04] "[36mGET /assets/index-DLEXCn-W.css HTTP/1.1[0m" 304 -
+10.170.148.1 - - [14/Sep/2025 18:33:04] "[36mGET /assets/index-CWs-ONnw.js HTTP/1.1[0m" 304 -
+10.170.148.1 - - [14/Sep/2025 18:33:07] "[36mGET /ordens-servico HTTP/1.1[0m" 304 -
+10.170.148.1 - - [14/Sep/2025 18:33:08] "[36mGET /assets/index-CWs-ONnw.js HTTP/1.1[0m" 304 -
+10.170.148.1 - - [14/Sep/2025 18:33:08] "[36mGET /assets/index-DLEXCn-W.css HTTP/1.1[0m" 304 -

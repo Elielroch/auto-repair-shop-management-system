@@ -6,13 +6,14 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
-import { ordensServicoAPI, clientesAPI, veiculosAPI } from '../services/api';
-import { Plus, Edit, Trash2, ClipboardList, User, Car, Calendar, DollarSign } from 'lucide-react';
+import { ordensServicoAPI, clientesAPI, veiculosAPI, pecasAPI } from '../services/api';
+import { Plus, Edit, Trash2, ClipboardList, User, Car, Calendar, DollarSign, Package } from 'lucide-react';
 
 const OrdensServico = () => {
   const [ordens, setOrdens] = useState([]);
   const [clientes, setClientes] = useState([]);
   const [veiculos, setVeiculos] = useState([]);
+  const [pecasDisponiveis, setPecasDisponiveis] = useState([]);
   const [veiculosCliente, setVeiculosCliente] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
@@ -25,7 +26,12 @@ const OrdensServico = () => {
     defeito_relatado: '',
     servicos_a_realizar: '',
     valor_mao_obra: '',
-    status: 'Em andamento'
+    status: 'Em andamento',
+    pecas_utilizadas: [] // Para armazenar peças na criação/edição
+  });
+  const [novaPecaUtilizada, setNovaPecaUtilizada] = useState({
+    peca_id: '',
+    quantidade: 1
   });
 
   const statusOptions = ['Em andamento', 'Pronto', 'Entregue'];
@@ -51,16 +57,22 @@ const OrdensServico = () => {
   const carregarDados = async () => {
     try {
       setLoading(true);
-      const [ordensResponse, clientesResponse, veiculosResponse] = await Promise.all([
+      const [ordensResponse, clientesResponse, veiculosResponse, pecasResponse] = await Promise.all([
         ordensServicoAPI.listar(),
         clientesAPI.listar(),
-        veiculosAPI.listar()
+        veiculosAPI.listar(),
+        pecasAPI.listar()
       ]);
-      setOrdens(ordensResponse.data);
-      setClientes(clientesResponse.data);
-      setVeiculos(veiculosResponse.data);
+      setOrdens(Array.isArray(ordensResponse?.data) ? ordensResponse.data : []);
+      setClientes(Array.isArray(clientesResponse?.data) ? clientesResponse.data : []);
+      setVeiculos(Array.isArray(veiculosResponse?.data) ? veiculosResponse.data : []);
+      setPecasDisponiveis(Array.isArray(pecasResponse?.data) ? pecasResponse.data : []);
     } catch (error) {
       console.error('Erro ao carregar dados:', error);
+      setOrdens([]);
+      setClientes([]);
+      setVeiculos([]);
+      setPecasDisponiveis([]);
     } finally {
       setLoading(false);
     }
@@ -69,20 +81,39 @@ const OrdensServico = () => {
   const carregarVeiculosCliente = async (clienteId) => {
     try {
       const response = await veiculosAPI.listarPorCliente(clienteId);
-      setVeiculosCliente(response.data);
+      setVeiculosCliente(Array.isArray(response?.data) ? response.data : []);
     } catch (error) {
       console.error('Erro ao carregar veículos do cliente:', error);
+      setVeiculosCliente([]);
     }
+  };
+
+  const handleClienteChange = (clienteId) => {
+    setFormData(prev => ({ ...prev, cliente_id: clienteId, veiculo_id: '' }));
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    if (!formData.cliente_id) {
+      alert('Selecione um cliente.');
+      return;
+    }
+    if (!formData.veiculo_id) {
+      alert('Selecione um veículo.');
+      return;
+    }
+
     try {
       const dadosOrdem = {
         ...formData,
         cliente_id: parseInt(formData.cliente_id),
         veiculo_id: parseInt(formData.veiculo_id),
-        valor_mao_obra: formData.valor_mao_obra ? parseFloat(formData.valor_mao_obra) : 0
+        valor_mao_obra: formData.valor_mao_obra ? parseFloat(formData.valor_mao_obra) : 0,
+        pecas_utilizadas: formData.pecas_utilizadas.map(pu => ({
+          peca_id: parseInt(pu.peca_id),
+          quantidade: parseInt(pu.quantidade)
+        }))
       };
 
       if (editingOrdem) {
@@ -95,22 +126,31 @@ const OrdensServico = () => {
       carregarDados();
     } catch (error) {
       console.error('Erro ao salvar ordem de serviço:', error);
-      alert('Erro ao salvar ordem de serviço');
+      alert('Erro ao salvar ordem de serviço: ' + (error.response?.data?.error || error.message));
     }
   };
 
-  const handleEdit = (ordem) => {
-    setEditingOrdem(ordem);
-    setFormData({
-      cliente_id: ordem.cliente_id.toString(),
-      veiculo_id: ordem.veiculo_id.toString(),
-      data_entrada: ordem.data_entrada,
-      defeito_relatado: ordem.defeito_relatado || '',
-      servicos_a_realizar: ordem.servicos_a_realizar || '',
-      valor_mao_obra: ordem.valor_mao_obra ? ordem.valor_mao_obra.toString() : '',
-      status: ordem.status
-    });
-    setShowForm(true);
+  const handleEdit = async (ordem) => {
+    try {
+      const response = await ordensServicoAPI.obter(ordem.id);
+      const ordemCompleta = response.data;
+
+      setEditingOrdem(ordemCompleta);
+      setFormData({
+        cliente_id: ordemCompleta.cliente_id.toString(),
+        veiculo_id: ordemCompleta.veiculo_id.toString(),
+        data_entrada: ordemCompleta.data_entrada,
+        defeito_relatado: ordemCompleta.defeito_relatado || '',
+        servicos_a_realizar: ordemCompleta.servicos_a_realizar || '',
+        valor_mao_obra: ordemCompleta.valor_mao_obra ? ordemCompleta.valor_mao_obra.toString() : '',
+        status: ordemCompleta.status,
+        pecas_utilizadas: ordemCompleta.pecas_utilizadas || []
+      });
+      setShowForm(true);
+    } catch (error) {
+      console.error('Erro ao carregar ordem para edição:', error);
+      alert('Erro ao carregar ordem para edição.');
+    }
   };
 
   const handleDelete = async (id) => {
@@ -120,7 +160,7 @@ const OrdensServico = () => {
         carregarDados();
       } catch (error) {
         console.error('Erro ao excluir ordem de serviço:', error);
-        alert('Erro ao excluir ordem de serviço');
+        alert('Erro ao excluir ordem de serviço: ' + (error.response?.data?.error || error.message));
       }
     }
   };
@@ -131,8 +171,47 @@ const OrdensServico = () => {
       carregarDados();
     } catch (error) {
       console.error('Erro ao atualizar status:', error);
-      alert('Erro ao atualizar status');
+      alert('Erro ao atualizar status: ' + (error.response?.data?.error || error.message));
     }
+  };
+
+  const handleAddPecaUtilizada = () => {
+    if (!novaPecaUtilizada.peca_id || novaPecaUtilizada.quantidade <= 0) {
+      alert('Selecione uma peça e uma quantidade válida.');
+      return;
+    }
+    const pecaExistente = pecasDisponiveis.find(p => String(p.id) === String(novaPecaUtilizada.peca_id));
+    if (!pecaExistente) {
+      alert('Peça selecionada não encontrada.');
+      return;
+    }
+
+    const pecaJaAdicionada = formData.pecas_utilizadas.find(pu => String(pu.peca_id) === String(novaPecaUtilizada.peca_id));
+    if (pecaJaAdicionada) {
+      alert('Esta peça já foi adicionada a esta ordem de serviço. Edite a quantidade existente.');
+      return;
+    }
+
+    const novaPeca = {
+      peca_id: pecaExistente.id,
+      peca_nome: pecaExistente.nome,
+      preco_unitario: pecaExistente.preco_unitario,
+      quantidade: novaPecaUtilizada.quantidade,
+      preco_total: pecaExistente.preco_unitario * novaPecaUtilizada.quantidade
+    };
+
+    setFormData(prev => ({
+      ...prev,
+      pecas_utilizadas: [...prev.pecas_utilizadas, novaPeca]
+    }));
+    setNovaPecaUtilizada({ peca_id: '', quantidade: 1 });
+  };
+
+  const handleRemovePecaUtilizada = (index) => {
+    setFormData(prev => ({
+      ...prev,
+      pecas_utilizadas: prev.pecas_utilizadas.filter((_, i) => i !== index)
+    }));
   };
 
   const resetForm = () => {
@@ -143,11 +222,13 @@ const OrdensServico = () => {
       defeito_relatado: '',
       servicos_a_realizar: '',
       valor_mao_obra: '',
-      status: 'Em andamento'
+      status: 'Em andamento',
+      pecas_utilizadas: []
     });
     setShowForm(false);
     setEditingOrdem(null);
     setVeiculosCliente([]);
+    setNovaPecaUtilizada({ peca_id: '', quantidade: 1 });
   };
 
   const getClienteNome = (clienteId) => {
@@ -160,9 +241,14 @@ const OrdensServico = () => {
     return veiculo ? veiculo.placa : 'Veículo não encontrado';
   };
 
+  const calcularValorTotalOrdem = (ordem) => {
+    const valorPecas = (ordem.pecas_utilizadas || []).reduce((acc, peca) => acc + (peca.preco_total || 0), 0);
+    return (ordem.valor_mao_obra || 0) + valorPecas;
+  };
+
   const ordensFiltradas = filtroStatus 
-    ? ordens.filter(ordem => ordem.status === filtroStatus)
-    : ordens;
+    ? (ordens || []).filter(ordem => ordem?.status === filtroStatus)
+    : ordens || [];
 
   if (loading) {
     return <div className="flex items-center justify-center h-64">Carregando...</div>;
@@ -190,19 +276,19 @@ const OrdensServico = () => {
         <CardContent className="p-4">
           <div className="flex items-center space-x-4">
             <Label htmlFor="filtro-status">Filtrar por status:</Label>
-            <Select value={filtroStatus} onValueChange={setFiltroStatus}>
-              <SelectTrigger className="w-48">
-                <SelectValue placeholder="Todos os status" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="">Todos os status</SelectItem>
-                {statusOptions.map((status) => (
-                  <SelectItem key={status} value={status}>
-                    {status}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            <select
+              id="filtro-status"
+              className="w-48 border rounded px-3 py-2"
+              value={filtroStatus}
+              onChange={e => setFiltroStatus(e.target.value)}
+            >
+              <option value="">Todos os status</option>
+              {statusOptions.map((status) => (
+                <option key={status} value={status}>
+                  {status}
+                </option>
+              ))}
+            </select>
           </div>
         </CardContent>
       </Card>
@@ -220,41 +306,53 @@ const OrdensServico = () => {
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div>
                   <Label htmlFor="cliente_id">Cliente *</Label>
-                  <Select 
-                    value={formData.cliente_id} 
-                    onValueChange={(value) => setFormData({ ...formData, cliente_id: value })}
+                  <select
+                    id="cliente_id"
+                    className="w-full border rounded px-3 py-2"
+                    value={formData.cliente_id || ""}
+                    onChange={e => handleClienteChange(e.target.value)}
+                    required
                   >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Selecione um cliente" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {clientes.map((cliente) => (
-                        <SelectItem key={cliente.id} value={cliente.id.toString()}>
-                          {cliente.nome}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                    <option value="">Selecione um cliente</option>
+                    {Array.isArray(clientes) &&
+                      clientes
+                        .filter(c => c && typeof c.id === "number" && c.id > 0)
+                        .map((cliente) => (
+                          <option key={cliente.id} value={cliente.id}>
+                            {cliente.nome || "Sem nome"}
+                          </option>
+                        ))}
+                  </select>
                 </div>
-                
+
                 <div>
                   <Label htmlFor="veiculo_id">Veículo *</Label>
-                  <Select 
-                    value={formData.veiculo_id} 
-                    onValueChange={(value) => setFormData({ ...formData, veiculo_id: value })}
+                  <select
+                    id="veiculo_id"
+                    className="w-full border rounded px-3 py-2"
+                    value={formData.veiculo_id || ""}
+                    onChange={e => setFormData({ ...formData, veiculo_id: e.target.value })}
                     disabled={!formData.cliente_id}
+                    required
                   >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Selecione um veículo" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {veiculosCliente.map((veiculo) => (
-                        <SelectItem key={veiculo.id} value={veiculo.id.toString()}>
-                          {veiculo.placa} - {veiculo.modelo}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                    <option value="">Selecione um veículo</option>
+                    {Array.isArray(veiculosCliente) &&
+                      veiculosCliente
+                        .filter(
+                          (v, idx, arr) =>
+                            v &&
+                            typeof v.id === "number" &&
+                            v.id > 0 &&
+                            typeof v.placa === "string" &&
+                            v.placa.trim() !== "" &&
+                            arr.findIndex(veic => veic.id === v.id) === idx
+                        )
+                        .map((veiculo) => (
+                          <option key={veiculo.id} value={veiculo.id}>
+                            {`${veiculo.placa} - ${veiculo.modelo || "Sem modelo"}`}
+                          </option>
+                        ))}
+                  </select>
                 </div>
                 
                 <div>
@@ -306,30 +404,92 @@ const OrdensServico = () => {
                 
                 <div>
                   <Label htmlFor="status">Status</Label>
-                  <Select 
-                    value={formData.status} 
-                    onValueChange={(value) => setFormData({ ...formData, status: value })}
+                  <select
+                    id="status"
+                    className="w-full border rounded px-3 py-2"
+                    value={formData.status}
+                    onChange={e => setFormData({ ...formData, status: e.target.value })}
+                    required
                   >
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {statusOptions.map((status) => (
-                        <SelectItem key={status} value={status}>
-                          {status}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                    {statusOptions.map((status) => (
+                      <option key={status} value={status}>
+                        {status}
+                      </option>
+                    ))}
+                  </select>
                 </div>
               </div>
-              
-              <div className="flex space-x-2">
-                <Button type="submit">
-                  {editingOrdem ? 'Atualizar' : 'Salvar'}
+
+              {/* Seção de Peças Utilizadas */}
+              <div className="space-y-2">
+                <h3 className="font-semibold text-gray-800">Peças Utilizadas</h3>
+                {formData.pecas_utilizadas.map((peca, index) => (
+                  <div key={index} className="flex items-center space-x-2 bg-gray-50 p-2 rounded-md">
+                    <Package className="h-4 w-4 text-gray-600" />
+                    <span>{peca.peca_nome} (x{peca.quantidade}) - R$ {peca.preco_total.toFixed(2)}</span>
+                    <Button 
+                      type="button" 
+                      variant="ghost" 
+                      size="sm" 
+                      onClick={() => handleRemovePecaUtilizada(index)}
+                      className="text-red-500 hover:text-red-700"
+                    >
+                      Remover
+                    </Button>
+                  </div>
+                ))}
+                <div className="flex space-x-2">
+                  <select
+                    className="w-[180px] border rounded px-3 py-2"
+                    value={novaPecaUtilizada.peca_id || ""}
+                    onChange={e => setNovaPecaUtilizada(prev => ({ ...prev, peca_id: e.target.value }))}
+                  >
+                    <option value="">Selecione uma peça</option>
+                    {Array.isArray(pecasDisponiveis) &&
+                      pecasDisponiveis
+                        .filter(p => p && typeof p.id === "number" && p.id > 0)
+                        .map((peca) => (
+                          <option key={peca.id} value={peca.id}>
+                            {`${peca.nome} - R$ ${peca.preco_unitario.toFixed(2)}`}
+                          </option>
+                        ))}
+                  </select>
+                  
+                  <Input
+                    type="number"
+                    min="1"
+                    step="1"
+                    value={novaPecaUtilizada.quantidade}
+                    onChange={(e) => setNovaPecaUtilizada(prev => ({ ...prev, quantidade: Math.max(1, e.target.value) }))}
+                    placeholder="Quantidade"
+                    className="w-24"
+                  />
+                  
+                  <Button 
+                    onClick={handleAddPecaUtilizada}
+                    className="flex items-center space-x-2"
+                  >
+                    <Plus className="h-4 w-4" />
+                    <span>Adicionar Peça</span>
+                  </Button>
+                </div>
+              </div>
+
+              <div className="flex justify-end space-x-2">
+                <Button 
+                  onClick={resetForm} 
+                  variant="outline"
+                  className="flex items-center space-x-2"
+                >
+                  <Trash2 className="h-4 w-4" />
+                  <span>Cancelar</span>
                 </Button>
-                <Button type="button" variant="outline" onClick={resetForm}>
-                  Cancelar
+                <Button 
+                  type="submit"
+                  className="flex items-center space-x-2"
+                >
+                  <DollarSign className="h-4 w-4" />
+                  <span>{editingOrdem ? 'Atualizar Ordem' : 'Criar Ordem'}</span>
                 </Button>
               </div>
             </form>
@@ -338,113 +498,60 @@ const OrdensServico = () => {
       )}
 
       {/* Lista de Ordens */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {ordensFiltradas.map((ordem) => (
-          <Card key={ordem.id} className="hover:shadow-lg transition-shadow duration-200">
-            <CardContent className="p-6">
-              <div className="flex items-start justify-between mb-4">
-                <div className="flex items-center space-x-3">
-                  <div className="p-2 bg-blue-50 rounded-full">
-                    <ClipboardList className="h-5 w-5 text-blue-600" />
-                  </div>
+      <Card>
+        <CardHeader>
+          <CardTitle>Lista de Ordens de Serviço</CardTitle>
+        </CardHeader>
+        <CardContent>
+          {ordensFiltradas.length === 0 ? (
+            <div className="text-center py-4 text-gray-500">
+              Nenhuma ordem de serviço encontrada.
+            </div>
+          ) : (
+            <div className="space-y-4">
+              {ordensFiltradas.map((ordem) => (
+                <div 
+                  key={ordem.id} 
+                  className="p-4 bg-white rounded-lg shadow-md flex flex-col md:flex-row md:items-center md:justify-between"
+                >
                   <div>
-                    <h3 className="font-semibold text-gray-900">OS #{ordem.id}</h3>
-                    <Badge className={statusColors[ordem.status]}>
-                      {ordem.status}
-                    </Badge>
+                    <h3 className="text-lg font-semibold text-gray-800">
+                      Ordem #{ordem.id}
+                    </h3>
+                    <p className="text-gray-600">
+                      Cliente: {getClienteNome(ordem.cliente_id)} - Veículo: {getVeiculoPlaca(ordem.veiculo_id)}
+                    </p>
+                    <p className="text-gray-600">
+                      Data de Entrada: {new Date(ordem.data_entrada).toLocaleDateString('pt-BR')} - Status: 
+                      <Badge className={`ml-2 ${statusColors[ordem.status]}`}>
+                        {ordem.status}
+                      </Badge>
+                    </p>
                   </div>
-                </div>
-                <div className="flex space-x-1">
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    onClick={() => handleEdit(ordem)}
-                  >
-                    <Edit className="h-4 w-4" />
-                  </Button>
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    onClick={() => handleDelete(ordem.id)}
-                    className="text-red-600 hover:text-red-700"
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </Button>
-                </div>
-              </div>
-              
-              <div className="space-y-3">
-                <div className="flex items-center space-x-2 text-sm text-gray-600">
-                  <User className="h-4 w-4" />
-                  <span>{getClienteNome(ordem.cliente_id)}</span>
-                </div>
-                
-                <div className="flex items-center space-x-2 text-sm text-gray-600">
-                  <Car className="h-4 w-4" />
-                  <span>{getVeiculoPlaca(ordem.veiculo_id)}</span>
-                </div>
-                
-                <div className="flex items-center space-x-2 text-sm text-gray-600">
-                  <Calendar className="h-4 w-4" />
-                  <span>{new Date(ordem.data_entrada).toLocaleDateString('pt-BR')}</span>
-                </div>
-                
-                <div className="flex items-center space-x-2 text-sm text-gray-600">
-                  <DollarSign className="h-4 w-4" />
-                  <span>R$ {(ordem.valor_total || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</span>
-                </div>
-                
-                {ordem.defeito_relatado && (
-                  <div className="text-sm">
-                    <span className="font-medium text-gray-700">Defeito:</span>
-                    <p className="text-gray-600 mt-1">{ordem.defeito_relatado}</p>
-                  </div>
-                )}
-                
-                {ordem.servicos_a_realizar && (
-                  <div className="text-sm">
-                    <span className="font-medium text-gray-700">Serviços:</span>
-                    <p className="text-gray-600 mt-1">{ordem.servicos_a_realizar}</p>
-                  </div>
-                )}
-                
-                {/* Botões de mudança de status */}
-                <div className="flex space-x-2 pt-2">
-                  {statusOptions.map((status) => (
-                    <Button
-                      key={status}
-                      size="sm"
-                      variant={ordem.status === status ? "default" : "outline"}
-                      onClick={() => handleStatusChange(ordem.id, status)}
-                      disabled={ordem.status === status}
+                  
+                  <div className="flex flex-col md:flex-row md:items-center md:space-x-4">
+                    <Button 
+                      onClick={() => handleEdit(ordem)}
+                      className="mt-2 md:mt-0"
                     >
-                      {status}
+                      <Edit className="h-4 w-4 mr-2" />
+                      Editar
                     </Button>
-                  ))}
+                    <Button 
+                      onClick={() => handleDelete(ordem.id)}
+                      variant="destructive"
+                      className="mt-2 md:mt-0"
+                    >
+                      <Trash2 className="h-4 w-4 mr-2" />
+                      Excluir
+                    </Button>
+                  </div>
                 </div>
-              </div>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
-
-      {ordensFiltradas.length === 0 && (
-        <Card>
-          <CardContent className="p-12 text-center">
-            <ClipboardList className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-            <h3 className="text-lg font-medium text-gray-900 mb-2">
-              {filtroStatus ? `Nenhuma ordem com status "${filtroStatus}"` : 'Nenhuma ordem de serviço cadastrada'}
-            </h3>
-            <p className="text-gray-600 mb-4">
-              {filtroStatus ? 'Tente alterar o filtro ou criar uma nova ordem.' : 'Comece criando a primeira ordem de serviço.'}
-            </p>
-            <Button onClick={() => setShowForm(true)}>
-              <Plus className="h-4 w-4 mr-2" />
-              Nova Ordem de Serviço
-            </Button>
-          </CardContent>
-        </Card>
-      )}
+              ))}
+            </div>
+          )}
+        </CardContent>
+      </Card>
     </div>
   );
 };
