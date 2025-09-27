@@ -17,8 +17,8 @@ flask-cors==4.0.1
     # via requirements.in
 flask-sqlalchemy==3.1.1
     # via requirements.in
-greenlet==2.0.2
-    # via sqlalchemy
+greenlet==3.0.3
+    # via sqlalchemy>=2.0.22
 itsdangerous==2.2.0
     # via flask
 jinja2==3.1.4
