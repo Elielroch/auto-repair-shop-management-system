@@ -29,3 +29,5 @@ sqlalchemy==2.0.31
     # via flask-sqlalchemy
 werkzeug==3.0.3
     # via flask
+
+gunicorn==23.0.0
