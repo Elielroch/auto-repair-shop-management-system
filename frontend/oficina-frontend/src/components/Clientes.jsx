@@ -177,16 +177,19 @@ const Clientes = () => {
                     size="sm"
                     variant="outline"
                     onClick={() => handleEdit(cliente)}
+                    className="hover:bg-gray-50"
                   >
-                    <Edit className="h-4 w-4" />
+                    <Edit className="h-4 w-4 mr-1" />
+                    <span>Editar</span>
                   </Button>
                   <Button
                     size="sm"
                     variant="outline"
                     onClick={() => handleDelete(cliente.id)}
-                    className="text-red-600 hover:text-red-700"
+                    className="text-red-600 hover:bg-red-50 hover:text-red-700"
                   >
-                    <Trash2 className="h-4 w-4" />
+                    <Trash2 className="h-4 w-4 mr-1" />
+                    <span>Excluir</span>
                   </Button>
                 </div>
               </div>
@@ -232,4 +235,3 @@ const Clientes = () => {
 };
 
 export default Clientes;
-

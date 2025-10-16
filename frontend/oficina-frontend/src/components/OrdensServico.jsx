@@ -530,21 +530,25 @@ const OrdensServico = () => {
                   </div>
                   
                   <div className="flex flex-col md:flex-row md:items-center md:space-x-4">
-                    <Button 
-                      onClick={() => handleEdit(ordem)}
-                      className="mt-2 md:mt-0"
-                    >
-                      <Edit className="h-4 w-4 mr-2" />
-                      Editar
-                    </Button>
-                    <Button 
-                      onClick={() => handleDelete(ordem.id)}
-                      variant="destructive"
-                      className="mt-2 md:mt-0"
-                    >
-                      <Trash2 className="h-4 w-4 mr-2" />
-                      Excluir
-                    </Button>
+                    <div className="flex space-x-2 mt-2 md:mt-0">
+                      <Button 
+                        onClick={() => handleEdit(ordem)}
+                        variant="outline"
+                        size="sm"
+                      >
+                        <Edit className="h-4 w-4 mr-1" />
+                        <span>Editar</span>
+                      </Button>
+                      <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => handleDelete(ordem.id)}
+                    className="text-red-600 hover:bg-red-50 hover:text-red-700"
+                  >
+                    <Trash2 className="h-4 w-4 mr-1" />
+                    <span>Excluir</span>
+                  </Button>
+                    </div>
                   </div>
                 </div>
               ))}
@@ -557,4 +561,3 @@ const OrdensServico = () => {
 };
 
 export default OrdensServico;
-
