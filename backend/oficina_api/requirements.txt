@@ -33,3 +33,7 @@ werkzeug==3.0.3
     # via flask
 
 gunicorn==23.0.0
+
+
+
+psycopg2-binary
