@@ -1,0 +1,5 @@
+# Pacotes principais da aplicação. O pip instalará as dependências automaticamente.
+Flask
+Flask-Cors
+Flask-SQLAlchemy
+ultralytics
