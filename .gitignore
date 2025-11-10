@@ -1,6 +1,8 @@
 # Python virtual environments
 /backend/oficina_api/venv/
 .venv/
+env/
+venv/
 
 # Python bytecode / caches
 **/__pycache__/
@@ -61,6 +63,27 @@ Thumbs.db
 *.swp
 *~
 
-# Misc
-*.key
-*.pem
+# IDE específico
+.vs/
+*.code-workspace
+
+# Arquivos temporários
+*.tmp
+*.bak
+
+# Arquivos de ambiente
+.env.*
+!.env.example
+
+# Arquivos de dependências
+poetry.lock
+package-lock.json
+yarn.lock
+
+# Cobertura de testes
+.tox/
+nosetests.xml
+coverage.xml
+
+# Documentação gerada
+/docs/_build/
