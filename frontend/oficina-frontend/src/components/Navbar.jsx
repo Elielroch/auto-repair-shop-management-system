@@ -6,7 +6,8 @@ import {
   ClipboardList, 
   Package, 
   BarChart3,
-  Wrench
+  Wrench,
+  Eye
 } from 'lucide-react';
 
 const Navbar = () => {
@@ -21,6 +22,11 @@ const Navbar = () => {
     { path: '/relatorios', label: 'Relatórios', icon: BarChart3 },
   ];
 
+  // Função para abrir o Object Recognition em uma nova aba
+  const handleOpenObjectRecognition = () => {
+    window.open('http://localhost:5001', '_blank');
+  };
+
   return (
     <nav className="bg-blue-900 text-white shadow-lg">
       <div className="container mx-auto px-4">
@@ -32,7 +38,7 @@ const Navbar = () => {
           </div>
 
           {/* Navigation Links */}
-          <div className="hidden md:flex space-x-1">
+          <div className="hidden md:flex space-x-1 items-center">
             {navItems.map((item) => {
               const Icon = item.icon;
               const isActive = location.pathname === item.path;
@@ -52,6 +58,16 @@ const Navbar = () => {
                 </Link>
               );
             })}
+
+            {/* Botão Object Recognition */}
+            <button
+              onClick={handleOpenObjectRecognition}
+              className="flex items-center space-x-2 px-4 py-2 rounded-md transition-colors duration-200 text-blue-100 hover:bg-green-600 hover:text-white ml-2"
+              title="Abrir Reconhecimento de Objetos"
+            >
+              <Eye className="h-4 w-4" />
+              <span>Reconhecimento</span>
+            </button>
           </div>
 
           {/* Mobile menu button */}
@@ -86,6 +102,16 @@ const Navbar = () => {
                 </Link>
               );
             })}
+
+            {/* Botão Object Recognition Mobile */}
+            <button
+              onClick={handleOpenObjectRecognition}
+              className="flex items-center space-x-2 px-4 py-2 rounded-md transition-colors duration-200 text-blue-100 hover:bg-green-600 hover:text-white w-full"
+              title="Abrir Reconhecimento de Objetos"
+            >
+              <Eye className="h-4 w-4" />
+              <span>Reconhecimento</span>
+            </button>
           </div>
         </div>
       </div>
@@ -94,4 +120,3 @@ const Navbar = () => {
 };
 
 export default Navbar;
-
