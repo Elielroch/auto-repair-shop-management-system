@@ -40,9 +40,16 @@ def serve(path):
             return "index.html not found", 404
 
 
-# ... (código anterior)
+
 
 if __name__ == '__main__':
-    
+    # Usa a variável de ambiente PORT (definida pelo Render) ou 5001 como fallback
     port = int(os.environ.get('PORT', 5001))
-    app.run(host='0.0.0.0', port=port, debug=True)
+    
+    is_production = os.environ.get('RENDER') == 'true' or port == 10000 
+    
+    app.run(
+        host='0.0.0.0', 
+        port=port, 
+        debug=False 
+    )
