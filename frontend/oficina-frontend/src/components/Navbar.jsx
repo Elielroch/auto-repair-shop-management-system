@@ -22,10 +22,13 @@ const Navbar = () => {
     { path: '/relatorios', label: 'Relatórios', icon: BarChart3 },
   ];
 
+  
   // Função para abrir o Object Recognition em uma nova aba
-  const handleOpenObjectRecognition = () => {
-    window.open('http://localhost:5001', '_blank');
-  };
+const handleOpenObjectRecognition = ( ) => {
+
+  window.open('https://object-recognition-service.onrender.com', '_blank' ); 
+};
+
 
   return (
     <nav className="bg-blue-900 text-white shadow-lg">
