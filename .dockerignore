@@ -1,0 +1,18 @@
+# Arquivos e pastas do Git
+.git
+.gitignore
+
+# Arquivos de configuração de IDEs
+.vscode/
+.idea/
+
+# Dependências do Node.js (serão instaladas dentro do contêiner)
+frontend/oficina-frontend/node_modules
+
+# Ambientes virtuais do Python
+backend/oficina_api/venv
+object-recognition/venv
+
+# Arquivos de cache do Python
+**/.pytest_cache
+**/__pycache__

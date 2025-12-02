@@ -1,0 +1,21 @@
+# Dockerfile para o Backend (oficina_api)
+
+# Usa a imagem oficial do Python como base
+FROM python:3.11-slim
+
+# Define o diretório de trabalho dentro do contêiner
+WORKDIR /app
+
+
+COPY backend/oficina_api/requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Copia o restante do código do backend
+COPY backend/oficina_api/ .
+
+# Expõe a porta que o Flask irá rodar
+EXPOSE 5000
+
+# Comando para rodar a aplicação Flask
+# Assumindo que o ponto de entrada é src/main.py e que o Flask roda em 0.0.0.0
+CMD ["gunicorn", "--bind", "0.0.0.0:5000", "src.main:app"]

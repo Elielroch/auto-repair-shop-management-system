@@ -1,0 +1,27 @@
+# Dockerfile para o Módulo de Reconhecimento (object-recognition)
+
+# Usa a imagem oficial do Python como base
+FROM python:3.11-slim
+
+# Define o diretório de trabalho dentro do contêiner
+WORKDIR /app
+
+# Copia o arquivo de dependências e instala
+# Assumindo que requirements.txt está em object-recognition/requirements.txt
+COPY object-recognition/requirements.txt .
+
+# Instala dependências do sistema operacional necessárias para OpenCV e outras libs de imagem.
+# A imagem 'slim' não as inclui por padrão.
+RUN apt-get update && apt-get install -y --no-install-recommends libgl1 libglib2.0-0 && rm -rf /var/lib/apt/lists/*
+
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Copia o restante do código do módulo de reconhecimento
+COPY object-recognition/ .
+
+# Expõe a porta que o Flask irá rodar
+EXPOSE 5001 
+
+# Comando para rodar a aplicação Flask
+# Assumindo que o ponto de entrada é src/main.py e que o Flask roda em 0.0.0.0
+CMD ["gunicorn", "--bind", "0.0.0.0:5001", "--workers", "2", "src.main:app"]

@@ -24,10 +24,10 @@ const Navbar = () => {
 
   
   // Função para abrir o Object Recognition em uma nova aba
-const handleOpenObjectRecognition = ( ) => {
-
-  window.open('https://object-recognition-service.onrender.com', '_blank' ); 
-};
+  const handleOpenObjectRecognition = () => {
+    const recognitionUrl = import.meta.env.VITE_RECOGNITION_SERVICE_URL;
+    window.open(recognitionUrl, '_blank');
+  };
 
 
   return (

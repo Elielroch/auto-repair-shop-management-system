@@ -5,3 +5,4 @@ Flask-SQLAlchemy
 ultralytics
 Pillow
 gunicorn
+pyopenssl

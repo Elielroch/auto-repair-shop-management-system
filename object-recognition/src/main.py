@@ -42,14 +42,22 @@ def serve(path):
 
 
 
+# No final do arquivo /home/Elielrocha/Downloads/sistema_oficina/object-recognition/src/main.py
+
 if __name__ == '__main__':
-    # Usa a variável de ambiente PORT (definida pelo Render) ou 5001 como fallback
     port = int(os.environ.get('PORT', 5001))
-    
-    is_production = os.environ.get('RENDER') == 'true' or port == 10000 
-    
-    app.run(
-        host='0.0.0.0', 
-        port=port, 
-        debug=False 
-    )
+    is_production = os.environ.get('RENDER') == 'true' or port == 10000
+
+    if is_production:
+        
+        app.run(host='0.0.0.0', port=port, debug=False)
+    else:
+        # Na sua máquina local, rode com um certificado SSL
+        print(f"Servidor local rodando em https://localhost:{port}")
+        app.run(
+            host='0.0.0.0', 
+            port=port, 
+            debug=True, 
+            ssl_context='adhoc' 
+        )
+

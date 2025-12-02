@@ -614,14 +614,11 @@
                 resultsContainer.innerHTML = result.detections.map((detection, index) => `
                     <div class="detection-card">
                         <div class="detection-title">
-                            ${detection.description || detection.class_name}
+                            ${detection.display_name || detection.class_name}
                         </div>
                         <div class="detection-info">
                             <div class="info-item">
-                                <strong>Tipo:</strong> ${detection.tool_type || detection.class_name}
-                            </div>
-                            <div class="info-item">
-                                <strong>Categoria:</strong> ${getCategoryName(detection.category)}
+                                <strong>Objeto:</strong> ${detection.display_name || detection.class_name}
                             </div>
                             <div class="info-item">
                                 <strong>Confiança:</strong> ${(detection.confidence * 100).toFixed(1)}%
@@ -648,7 +645,7 @@
 
             detections.forEach(det => {
                 const { x1, y1, x2, y2 } = det.bbox;
-                const label = `${det.display_name} (${(det.confidence * 100).toFixed(0)}%)`;
+                const label = `${det.display_name || det.class_name} (${(det.confidence * 100).toFixed(0)}%)`;
 
                 ctx.strokeStyle = '#667eea';
                 ctx.lineWidth = 3;

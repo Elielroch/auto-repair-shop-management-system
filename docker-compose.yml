@@ -1,0 +1,55 @@
+version: '3.8'
+
+services:
+  # 1. Backend Service (Flask API)
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile.backend
+    container_name: auto-repair-backend
+    ports:
+      - "5000:5000"
+    volumes:
+      # Monta o diretório do backend para desenvolvimento (opcional, mas útil)
+      - ./backend/oficina_api:/app
+      # Monta um volume para persistência do banco de dados SQLite
+      - backend_data:/app/instance
+    # Garante que o backend seja iniciado antes do frontend
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5000/"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    restart: always
+
+  # 2. Recognition Service (Object Recognition Module)
+  recognition:
+    build:
+      context: .
+      dockerfile: Dockerfile.recognition
+    container_name: auto-repair-recognition
+    ports:
+      - "5001:5001"
+    volumes:
+      # Monta o diretório do módulo de reconhecimento para desenvolvimento
+      - ./object-recognition:/app
+    restart: always
+
+  # 3. Frontend Service (React App)
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile.frontend
+      # Passa o arquivo de configuração do Nginx
+      args:
+        - NGINX_CONF=nginx.conf
+    container_name: auto-repair-frontend
+    ports:
+      - "3000:80" # Mapeia a porta 80 do Nginx para a porta 3000 do host
+    depends_on:
+      - backend # O frontend depende do backend para funcionar
+    restart: always
+
+volumes:
+  backend_data:
+    driver: local
