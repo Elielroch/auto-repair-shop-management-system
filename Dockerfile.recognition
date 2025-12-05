@@ -14,7 +14,7 @@ COPY object-recognition/requirements.txt .
 # A imagem 'slim' não as inclui por padrão.
 RUN apt-get update && apt-get install -y --no-install-recommends libgl1 libglib2.0-0 && rm -rf /var/lib/apt/lists/*
 
-RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install --no-cache-dir --timeout 600 -r requirements.txt
 
 # Copia o restante do código do módulo de reconhecimento
 COPY object-recognition/ .

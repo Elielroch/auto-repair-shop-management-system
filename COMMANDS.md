@@ -26,7 +26,7 @@ docker compose down
 
 -   **Para remover também o volume de dados do backend (`backend_data`):**
     ```bash
-    docker-compose down -v
+    docker compose down -v
     ```
 
 ---
