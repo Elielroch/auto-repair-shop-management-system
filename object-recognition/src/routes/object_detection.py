@@ -86,8 +86,7 @@ def health_check():
 def get_supported_classes():
     """Retorna as classes de objetos suportadas pelo modelo."""
     return jsonify({
-        'supported_classes': list(detector.model.names.values()),
-        'target_classes': detector.target_classes,
-        'total_classes': len(detector.model.names)
+        'supported_classes': detector.classes,
+        'target_classes': detector.target_classes, # Classes que o app considera relevantes
+        'total_supported_classes': len(detector.classes)
     })
-

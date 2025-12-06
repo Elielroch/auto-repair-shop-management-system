@@ -2,7 +2,11 @@
 Flask
 Flask-Cors
 Flask-SQLAlchemy
-ultralytics
 Pillow
 gunicorn
 pyopenssl
+opencv-python
+numpy
+
+# Removido: ultralytics (e suas dependências pesadas como torch) para reduzir o consumo de memória.
+# Adicionado: opencv-python e numpy para inferência com modelo ONNX.
